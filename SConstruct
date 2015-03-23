@@ -102,3 +102,7 @@ envAda = Environment(BUILDERS = {'AdaProgram' : bldAda,
 envAda.AdaCompile('hello.adb')
 envAda.AdaBind('hello.ali')
 envAda.AdaLink('b~hello.adb')
+
+envAda.AdaCompile('yourage.adb')
+envAda.AdaBind('yourage.ali')
+envAda.AdaLink('b~yourage.adb')

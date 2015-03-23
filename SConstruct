@@ -30,13 +30,15 @@ def emitter_bind(target, source, env):
 
 # target for link is the executable name
 def emitter_link(target, source, env):
-    """Updater Target list of ada link step
+    """Update Target and Source list of ada link step
     
-    remove the b~ prefix
+    remove the b~ prefix for target
+    adds .adb file for source
     """
     # retrieve link builder
     bndBld = env.get_builder('AdaBind')
     target = [re.sub(bndBld.get_prefix(env), '', str(target[0]))]
+    source.append(re.sub(bndBld.get_suffix(env), '.ads', str(source[0])))
     #target = [re.sub(bndBld.get_suffix(env), '', str(target[0]))]
     return target, source
 
@@ -84,7 +86,7 @@ bndAda = Builder(generator=generate_bind_ada,
 
 lnkAda = Builder(generator=generate_link_ada,
                  suffix='',
-                 src_suffix='.ads',
+                 src_suffix='.adb',
                  emitter = emitter_link
                  )
 # Ada environment

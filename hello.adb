@@ -5,9 +5,7 @@ procedure Hello is
 --partie réservée aux déclarations
 begin
   --put("Salut tout le monde !") ; --on affiche un message
-  put("Hello");
-  New_Line;
-  put("World");
-  New_Line;
-  put("World");
+  put_line("Hello");
+  put_line("World");
+  put_line("World");
 end Hello ;

@@ -42,34 +42,10 @@ def emitter_link(target, source, env):
     #target = [re.sub(bndBld.get_suffix(env), '', str(target[0]))]
     return target, source
 
+# Generate action for linker
 def generate_link_ada(target, source, env, for_signature):
+    """Generate action for linker builder"""
     return env.subst('$ADALINK') + " " + str(target[0])
-# Compile ada sources and link to build target
-def compile_ada(target, source, env):
-    for s in source:
-        print "--> " + env.subst('$ADACOMP') + " -c " + str(s)
-        cmdLine = [env.subst('$ADACOMP'),
-                   "-c",
-                   str(s)]
-        job = subprocess.check_call(cmdLine,
-                                    stdout=sys.stdout,
-                                    stderr=sys.stderr)
-    # bind
-    cmdLine = [env.subst('$ADABIND'), str(target[0])]
-    job = subprocess.check_call(cmdLine,
-                                stdout=sys.stdout,
-                                stderr=sys.stderr)
-
-    # link
-    cmdLine = [env.subst('$ADALINK'), str(target[0])]
-    job = subprocess.check_call(cmdLine,
-                                stdout=sys.stdout,
-                                stderr=sys.stderr)
-    return None
-
-bldAda = Builder(action=compile_ada,
-                 suffix='',
-                 src_suffix='.adb')
 
 # Ada Builder
 cmpAda = Builder(generator=generate_compile_ada,
@@ -89,36 +65,31 @@ lnkAda = Builder(generator=generate_link_ada,
                  src_suffix='.adb',
                  emitter = emitter_link
                  )
+
+def ada_program(env, source):
+    #lnkBld(bndBld(cmpBld(source)))
+    p = env.AdaLink(env.AdaBind(env.AdaCompile(source)))
+    return p
+
 # Ada environment
-envAda = Environment(BUILDERS = {'AdaProgram' : bldAda,
-                                 'AdaCompile' : cmpAda,
+envAda = Environment(BUILDERS = {'AdaCompile' : cmpAda,
                                  'AdaBind' : bndAda,
-                                 'AdaLink' : lnkAda,},
+                                 'AdaLink' : lnkAda,
+                                 },
                      ADACOMP = 'gcc',
                      ADALINK = 'gnatlink',
                      ADABIND = 'gnatbind')
+envAda.AddMethod(ada_program, 'AdaProgram')
 
-#envAda.AdaProgram('hello.adb')
-envAda.AdaCompile('hello.adb')
-envAda.AdaBind('hello.ali')
-envAda.AdaLink('b~hello.adb')
 
-envAda.AdaCompile('yourage.adb')
-envAda.AdaBind('yourage.ali')
-envAda.AdaLink('b~yourage.adb')
+envAda.AdaProgram('hello.adb')
 
-envAda.AdaCompile('operations.adb')
-envAda.AdaBind('operations.ali')
-envAda.AdaLink('b~operations.adb')
+envAda.AdaProgram('yourage.adb')
 
-envAda.AdaCompile('opdiv.adb')
-envAda.AdaBind('opdiv.ali')
-envAda.AdaLink('b~opdiv.adb')
+envAda.AdaProgram('operations.adb')
 
-envAda.AdaCompile('circle.adb')
-envAda.AdaBind('circle.ali')
-envAda.AdaLink('b~circle.adb')
+envAda.AdaProgram('opdiv.adb')
 
-envAda.AdaCompile('letter.adb')
-envAda.AdaBind('letter.ali')
-envAda.AdaLink('b~letter.adb')
+envAda.AdaProgram('circle.adb')
+
+envAda.AdaProgram('letter.adb')

@@ -67,7 +67,10 @@ lnkAda = Builder(generator=generate_link_ada,
                  )
 
 def ada_program(env, source):
-    #lnkBld(bndBld(cmpBld(source)))
+    """Build Ada program
+
+    Calls the different ada builders to create executable from source
+    """
     p = env.AdaLink(env.AdaBind(env.AdaCompile(source)))
     return p
 
@@ -82,14 +85,10 @@ envAda = Environment(BUILDERS = {'AdaCompile' : cmpAda,
 envAda.AddMethod(ada_program, 'AdaProgram')
 
 
+# Source to compile :
 envAda.AdaProgram('hello.adb')
-
 envAda.AdaProgram('yourage.adb')
-
 envAda.AdaProgram('operations.adb')
-
 envAda.AdaProgram('opdiv.adb')
-
 envAda.AdaProgram('circle.adb')
-
 envAda.AdaProgram('letter.adb')

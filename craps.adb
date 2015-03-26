@@ -7,6 +7,7 @@ use ada.text_io,
 procedure Craps IS
 
   SUBTYPE DiceRange IS Integer RANGE 1..6 ;
+  subtype Sum2DiceRange is Integer Range 2..12;
   PACKAGE DiceRandom IS NEW Ada.Numerics.Discrete_Random(DiceRange);
   USE DiceRandom;
 
@@ -28,10 +29,41 @@ procedure Craps IS
     return bet;
   end doBet;
 
+  -- Roll dices and return sum of the two values
+  -- Display individual numbers as well as the sum
+  function rollDices(seed:Generator) return Sum2DiceRange is
+    sum : Sum2DiceRange;
+    d1 : DiceRange;
+    d2 : DiceRange;
+  begin
+    d1 := random(seed);
+    d2 := random(seed);
+
+    sum := d1+d2;
+    put("Rolled dice, got ");
+    put(d1);
+    put(" and ");
+    put(d2);
+    put(" = ");
+    put(sum);
+    new_line;
+    return sum;
+  end rollDices;
+
+  -- Start playing the first round with the given bet.
+  -- play second round if necessary.
+  -- return amount of money won/lost (negative amount when losing)
+  function playFirstRound(bet:natural) return integer is
+    sum : Sum2DiceRange;
+  begin
+    --sum := rollDices(seed);
+    return -bet;
+  end playFirstRound;
+
   money : natural:=50; -- Available money for the game
   bet : natural:=1; -- amount of money the player is betting
 
-  Seed  : Generator;
+  seed  : Generator;
 begin
   reset(Seed);
 
@@ -39,7 +71,7 @@ begin
     bet := doBet(money);
     if bet > 0 then
       put_line("let's play");
-      money := money - bet;
+      money := money + playFirstRound(bet);
     else
       put_line("ok bye");
       exit;

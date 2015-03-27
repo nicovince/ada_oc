@@ -10,6 +10,7 @@ procedure Craps IS
   subtype Sum2DiceRange is Integer Range 2..12;
   PACKAGE DiceRandom IS NEW Ada.Numerics.Discrete_Random(DiceRange);
   USE DiceRandom;
+  seed  : Generator;
 
   -- Return the amount of money player want to bet
   -- keep asking while bet value is greater than available money given in arg
@@ -41,14 +42,37 @@ procedure Craps IS
 
     sum := d1+d2;
     put("Rolled dice, got ");
-    put(d1);
+    put(d1, width=>0);
     put(" and ");
-    put(d2);
+    put(d2, width=>0);
     put(" = ");
-    put(sum);
+    put(sum, width=>0);
     new_line;
     return sum;
   end rollDices;
+
+  -- Start playing second round with given bet and target sum
+  -- return amount of money won/lost
+  function playSecondRound(bet:natural;
+    sum:Sum2DiceRange) return integer is
+    sum2 : Sum2DiceRange;
+  begin
+    sum2 := rollDices(craps.seed);
+    -- stop when rolling 7 or previous sum
+    while (sum2 /= sum and sum2 /= 7) loop
+      sum2 := rollDices(craps.seed);
+    end loop;
+
+    -- lose/win
+    if sum2 = 7 then
+      -- lose bet
+      return -bet;
+    else
+      -- win bet
+      return bet;
+    end if;
+  end playSecondRound;
+
 
   -- Start playing the first round with the given bet.
   -- play second round if necessary.
@@ -56,14 +80,17 @@ procedure Craps IS
   function playFirstRound(bet:natural) return integer is
     sum : Sum2DiceRange;
   begin
-    --sum := rollDices(seed);
-    return -bet;
+    sum := rollDices(craps.seed);
+    case sum is
+      when 7 | 11 => return bet;
+      when 2 | 3 | 12 => return -bet;
+      when others => return playSecondRound(bet, sum);
+    end case;
   end playFirstRound;
 
   money : natural:=50; -- Available money for the game
   bet : natural:=1; -- amount of money the player is betting
 
-  seed  : Generator;
 begin
   reset(Seed);
 
